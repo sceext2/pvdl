@@ -1,8 +1,9 @@
+#!/usr/bin/env python3.5
 # -*- coding: utf-8 -*-
-# pvdl.py, parse_video/pvdl/bin/
+# pvdl.py, pvdl/bin/
 # language: English (en)
 #
-#    pvdl : A reference implemention of a downloader which uses parse_video. 
+#    pvdl : A very simple downloader with p_video. 
 #    Copyright (C) 2016 sceext <sceext@foxmail.com>
 #
 #    This program is free software: you can redistribute it and/or modify
@@ -33,7 +34,7 @@ import time
 from lib import err, b, conf, log
 from lib import entry, lan
 
-VERSION_STR = 'pvdl version 0.0.13.0 test201604161333 (android)'
+VERSION_STR = 'pvdl version 0.0.14.0 test201607221501'
 
 # global data
 etc = {}
@@ -47,7 +48,7 @@ etc['list_retry'] = conf.list_retry_times	# NOTE use default value
 def p_help():
     print('''\
 Usage: pvdl [OPTION]... URL
-pvdl: A reference implemention of a downloader which uses parse_video. 
+pvdl: A very simple downloader with p_video. 
 
       --hd HD                  set hd to select
   -o, --output DIR             save downloaded file to DIR
@@ -71,12 +72,11 @@ pvdl: A reference implemention of a downloader which uses parse_video.
       --version  output version information and exit
       --license  show license information and exit
 
-More information online: <https://github.com/sceext2/parse_video> \
+More information online: <https://github.com/sceext2/pvdl> \
 ''')
 
 def p_version():
     print(VERSION_STR + '''
-    pvdl-android powered by bin_android (github:sceext2/bin_android). 
 
     pvdl  Copyright (C) 2016  sceext <sceext@foxmail.com>
     This program comes with ABSOLUTELY NO WARRANTY. This is free software, and 
@@ -88,7 +88,7 @@ Please use "--license" or read LICENSE for more details. \
 
 def p_license():
     print('''\
-    pvdl : A reference implemention of a downloader which uses parse_video. 
+    pvdl : A very simple downloader with p_video. 
     Copyright (C) 2016 sceext <sceext@foxmail.com>
 
     This program is free software: you can redistribute it and/or modify

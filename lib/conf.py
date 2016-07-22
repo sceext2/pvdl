@@ -1,8 +1,8 @@
-# conf.py, parse_video/pvdl/lib/, config file for pvdl
+# conf.py, pvdl/lib/, config file for pvdl
 # language: English (en) 
 
 
-auto_select_hd = [-1, 8]
+auto_select_hd = [2, 6]
 #### auto-select hd in this range, will always select max hd
 
 output_dir = './dl/'
@@ -54,8 +54,8 @@ FEATURES = {	# --enable, --disable
     'parse_twice' : True, 
     # TODO first parse only to get video formats, second parse to get file URLs
 
-    'parse_twice_enable_more' : True, 
-    #### enable_more to speed up second parse
+    'parse_twice_enable_cache' : True, 
+    #### enable parse cache to speed up second parse
 
 # create task
 
@@ -114,7 +114,7 @@ FEATURES = {	# --enable, --disable
     'check_merged_size' : True, 
     #### check merged file size
 
-    'check_merged_time' : False, 
+    'check_merged_time' : True, 
     #### check merged video time, if possible (requires mediainfo)
 
     'merge_twice' : False, 
@@ -128,7 +128,7 @@ FEATURES = {	# --enable, --disable
     'check_permission' : False, 
     # TODO check permission to write files
 
-    'fix_unicode' : True, 
+    'fix_unicode' : False, 
     #### fix_unicode is for Windows and Android
 
     'list_ignore_task_err' : True, 
@@ -199,21 +199,21 @@ disk_space_needed_k = 2.1
 # pvdl call subprocess bin file
 SUB_BIN = {
 # NOTE paths starts with ./ or ../ is from pvdl root path (pvdl/)
-    'parsev' : (
-        '../pv', 
+    'pv' : (
+        './p_video/pv', 
         True), 
     'wget' : (
-        './bin/wget', 
-        True), 
+        'wget', 
+        False), 
     'ffmpeg' : (
-        './bin/ffmpeg', 
-        True), 
+        'ffmpeg', 
+        False), 
     'mediainfo' : (
-        './bin/mediainfo', 
-        True), 
+        'mediainfo', 
+        False), 
 }
 
-PVDL_LOG_PREFIX = 'pvdl-A::'
+PVDL_LOG_PREFIX = 'pvdl-2::'
 FILENAME_BAD_CHAR = ' \\:"/|?*<>'
 FILENAME_REPLACE = '-'
 
