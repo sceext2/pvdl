@@ -1,0 +1,4 @@
+[submodule "p_video"]
+	path = p_video
+	url = https://github.com/sceext2/p_video.git
+	branch = pv-8
