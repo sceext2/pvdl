@@ -70,23 +70,23 @@ def start():
 def _do_can_retry():
     # TODO support parse_once
     
-    # NOTE check parse_twice_enbale_more
-    enable_more = conf.FEATURES['parse_twice_enable_more']
-    if not enable_more:
-        log.d(lan.e_d_disable_parse_twice_enable_more())
+    # NOTE check parse_twice_enbale_cache
+    enable_cache = conf.FEATURES['parse_twice_enable_cache']
+    if not enable_cache:
+        log.d(lan.e_d_disable_parse_twice_enable_cache())
     # do first parse to get video formats
-    pvinfo = parse.parse(enable_more=enable_more)
+    pvinfo = parse.parse(enable_cache=enable_cache)
     ui.entry_print_pvinfo(pvinfo)
     # select hd
     hd = _select_hd(pvinfo)
     
     # INFO log
     log.i(lan.e_second_parse())
-    # check parse_twice_enable_more again, to input more info
-    more_info = None
-    if enable_more:
-        more_info = pvinfo
-    pvinfo = parse.parse(hd=hd, pvinfo=more_info)
+    # check parse_twice_enable_cache again, to input cache info
+    cache_info = None
+    if enable_cache:
+        cache_info = pvinfo
+    pvinfo = parse.parse(hd=hd, pvinfo=cache_info)
     # create task
     task_info = parse.create_task(pvinfo, hd)
     
@@ -279,19 +279,19 @@ def _do_download(task_info):
     for i in range(count):
         f = v['file'][i]
         # TODO print download speed, rest time, etc. 
-        ui.entry_print_before_download(i, count, f['_part_name'], f['size'], f['time_s'])
+        ui.entry_print_before_download(i, count, f['_part_name'], f['size_byte'], f['time_s'])
         if dl_worker.dl_one_file(f):	# do download one file
             count_ok += 1
             # NOTE support task_info without size_byte, size, time_s, etc. 
-            if f['size'] >= 0:	# -1 means None
-                done_size += f['size']
+            if f['size_byte'] >= 0:	# -1 means None
+                done_size += f['size_byte']
             if f['time_s'] >= 0:
                 done_time += f['time_s']
         else:
             count_err += 1
         # update count, NOTE support no info
-        if f['size'] >= 0:
-            rest_size -= f['size']
+        if f['size_byte'] >= 0:
+            rest_size -= f['size_byte']
         if f['time_s'] >= 0:
             rest_time -= f['time_s']
         ui.entry_print_download_status(count_err, count_ok, done_size, v['size_byte'], done_time, v['time_s'], rest_size, rest_time)

@@ -161,8 +161,8 @@ def dl_ok_md5(ok_md5):
 def p_first(raw_url):
     return ('first parse, call parse_video to parse URL \"' + raw_url + '\" ')
 
-def p_d_disable_print_parse_video_output():
-    return ('disabled feature print_parse_video_output ')
+def p_d_disable_print_pv_output():
+    return ('disabled feature print_pv_output ')
 
 def p_err_pv_parse():
     return ('call parse_video to do parse failed ')
@@ -210,7 +210,7 @@ def p_err_check_log_part_file(i):
     return ('check log failed, part file ' + str(i + 1) + ': ')
 
 def p_err_new_is_not_old(name, new, old):
-    # NOTE name can be ['size', 'time_s', 'checksum']
+    # NOTE name can be ['size_byte', 'time_s', 'checksum']
     return ('new ' + name + ' ' + str(new) + ' != old ' + str(old) + ' ')
 
 def p_err_check_log_checksum():
@@ -246,8 +246,8 @@ def e_err_task():
 def e_wait_retry(wait):
     return ('wait ' + str(wait) + ' s before next retry ')
 
-def e_d_disable_parse_twice_enable_more():
-    return ('disabled feature parse_twice_enable_more ')
+def e_d_disable_parse_twice_enable_cache():
+    return ('disabled feature parse_twice_enable_cache ')
 
 def e_second_parse():
     return ('second parse, call parse_video to get file URLs ')

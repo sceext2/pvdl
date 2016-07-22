@@ -34,7 +34,7 @@ import time
 from lib import err, b, conf, log
 from lib import entry, lan
 
-VERSION_STR = 'pvdl version 0.0.14.0 test201607221501'
+VERSION_STR = 'pvdl version 0.0.14.0 test201607221539'
 
 # global data
 etc = {}
@@ -245,9 +245,6 @@ def disable_enable_features(raw, enable=False):
 
 # normal start mode
 def start_normal():
-    # NOTE pvdl-android: before start_normal, print version info first
-    p_version()
-    
     # check input_url
     if conf.raw_url == '':
         conf.raw_url = input_url()

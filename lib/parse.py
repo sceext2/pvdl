@@ -1,4 +1,4 @@
-# parse.py, parse_video/pvdl/lib/
+# parse.py, pvdl/lib/
 
 import os
 import json
@@ -7,67 +7,68 @@ from . import err, b, conf, log
 from . import call_sub, make_title, lan
 
 
-# NOTE support enable_more, input more info with pvinfo
-def parse(hd=None, enable_more=False, pvinfo=None):
+# NOTE support enable_cache, input cache info with pvinfo
+def parse(hd=None, enable_cache=False, pvinfo=None, comment=None):
     raw_url = conf.raw_url
     # INFO log
     if hd == None:
         log.i(lan.p_first(raw_url))
-    pvinfo, raw_text = _do_parse(raw_url, hd=hd, enable_more=enable_more, pvinfo=pvinfo)
-    # check print parse_video output
-    if conf.FEATURES['print_parse_video_output']:
+    pvinfo, raw_text = _do_parse(raw_url, hd=hd, enable_cache=enable_cache, pvinfo=pvinfo, comment=comment)
+    # check print p_video output
+    if conf.FEATURES['print_pv_output']:
         print(raw_text)	# print raw output
     else:	# DEBUG log
-        log.d(lan.p_d_disable_print_parse_video_output())
-    # TODO check parse_video output mark_uuid and port_version
+        log.d(lan.p_d_disable_print_pv_output())
+    # TODO check p_video output mark_uuid and port_version
     # check fix_size
     if conf.FEATURES['fix_size']:
         pvinfo = _fix_size(pvinfo)
     conf.pvinfo = pvinfo	# save raw pvinfo
     return pvinfo	# done
 
-def _do_parse(raw_url, hd=None, enable_more=False, pvinfo=None):
-    # make parse_video args
+def _do_parse(raw_url, hd=None, enable_cache=False, pvinfo=None, comment=None):
+    # make p_video args
     arg = []
+    
     # check fix_unicode
     if conf.FEATURES['fix_unicode']:
-        arg += ['--fix-unicode']
+        arg += ['--enable', 'fix_unicode']
     # check hd
     if hd == None:	# parse formats
-        arg += ['--min', str(1), '--max', str(0)]
+        arg += ['--set', 'hd=' + json.dumps([1, 0])]
     else:	# parse URLs
-        arg += ['--min', str(hd), '--max', str(hd)]
-    # check enable_more
-    if enable_more:
-        arg += ['--fix-enable-more']
+        arg += ['--set', 'hd=' + json.dumps([hd, hd])]
+    # check enable_cache
+    if enable_cache:
+        arg += ['--enable', 'cache_all']
     # check and encode pvinfo
     if pvinfo != None:
         pvinfo = json.dumps(pvinfo).encode('utf-8')
-        arg += ['--more', '-']	# use more data from stdin
+        arg += ['--set-json']	# input pvinfo from stdin
+    # add raw_url before add rest args
+    arg += [raw_url]
     # check add more raw args
     if len(conf.raw_args) > 0:
-        arg += ['--options-overwrite-once'] + conf.raw_args
-    # add raw_url at last
-    arg += [raw_url]
-    # call parse_video to do parse
+        arg += conf.raw_args
+    # call p_video to do parse
     try:
-        pvinfo, raw_text = call_sub.call_parsev(arg, data=pvinfo)
+        pvinfo, raw_text = call_sub.call_pv(arg, data=pvinfo)
     except (err.CallError, err.DecodingError) as e:
-        er = err.ConfigError('call', 'parse_video')
+        er = err.ConfigError('call', 'p_video')
         raise er from e
     except err.PvdlError as e:
         log.e(lan.p_err_pv_parse())
-        er = err.ParseError('call parse_video', arg)
+        er = err.ParseError('call p_video', arg)
         raise er from e
     except Exception as e:
         log.e(lan.p_err_pv_unknow())
-        er = err.UnknowError('call', 'parse_video')
+        er = err.UnknowError('call', 'p_video')
         raise er from e
     return pvinfo, raw_text	# OK
 
 def _fix_size(pvinfo):	# NOTE not check feature again
     def check_raw_f(f):
-        if (not 'size' in f) or (f['size'] < 0):
+        if (not 'size_byte' in f) or (f['size_byte'] < 0):
             return True
         return False
     # NOTE make todo list
@@ -103,7 +104,7 @@ def _get_one_size(f):
         info = b.http_head(f['url'], header=header)
         # get Content-Length header
         content_length = info['Content-Length']
-        f['size'] = int(content_length)
+        f['size_byte'] = int(content_length)
     except Exception as e:	# ignore error
         pass	# TODO print fix ERROR info
     return f
@@ -113,7 +114,7 @@ def _fix_pvinfo_count(pvinfo):
     for v in pvinfo['video']:
         count = 0
         for f in v['file']:
-            size = f['size']
+            size = f['size_byte']
             if size < 0:	# check count
                 count = -1
             elif count >= 0:
@@ -138,7 +139,9 @@ def create_task(pvinfo, hd):
         raise err.UnknowError('can not select hd from pvinfo', hd, pvinfo)
     task_info['video'] = v
     # NOTE check --title-no
-    old_title_no = task_info['info'].get('title_no', None)
+    old_title_no = None
+    if ('title_extra' in task_info['info']) and ('no' in task_info['info']['title_extra']):
+        old_title_no = task_info['info']['title_extra']['no']
     if conf.title_no != None:
         log.i(lan.p_set_title_no(conf.title_no, old_title_no))
         task_info['info']['title_no'] = conf.title_no
@@ -272,13 +275,13 @@ def _check_log_file(task_info):
         # check each part file size, time_s match
         for i in range(now_count):
             f, o = now_f[i], old_f[i]
-            now_size, old_size = f['size'], o['size']
+            now_size, old_size = f['size_byte'], o['size_byte']
             now_time, old_time = f['time_s'], o['time_s']
             t = lan.p_err_check_log_part_file(i)
             if now_size != old_size:
-                t += lan.p_err_new_is_not_old('size', now_size, old_size)
+                t += lan.p_err_new_is_not_old('size_byte', now_size, old_size)
                 log.e(t)
-                raise err.CheckError('check log_file part_file', i, 'size', old_size, now_size)
+                raise err.CheckError('check log_file part_file', i, 'size_byte', old_size, now_size)
             if now_time != old_time:
                 t += lan.p_err_new_is_not_old('time_s', now_time, old_time)
                 log.e(t)

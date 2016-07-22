@@ -54,13 +54,13 @@ def _check_local_size(f):
     # get local file info
     s = os.stat(f['path'])
     local_size = s.st_size
-    # NOTE check falied if no f['size'] info
-    if (not 'size' in f) or (f['size'] <= 0):
+    # NOTE check falied if no f['size_byte'] info
+    if (not 'size_byte' in f) or (f['size_byte'] <= 0):
         log.d(lan.dl_d_local_size(b.byte_to_size(local_size)), add_check_log_prefix=True)
         log.w(lan.dl_err_check_local_size_no_info(), add_check_log_prefix=True)
         return False	# not skip
     # check size
-    err_s, err_k, er, err_u = b.check_size(local_size, f['size'], b.CHECK_SIZE_MB)
+    err_s, err_k, er, err_u = b.check_size(local_size, f['size_byte'], b.CHECK_SIZE_MB)
     if er:
         if (abs(err_u) >= conf.CHECK_ERR_K['local_size_mb']) or (abs(err_k) >= conf.CHECK_ERR_K['local_size']):
             # check skip_local_larger_file
@@ -82,15 +82,15 @@ def _check_file_size(f):
         log.e(lan.dl_err_check_file_size_get_info(f['_part_name'], e), add_check_log_prefix=True)
         return True	# NOTE not raise here
     local_size = s.st_size
-    # NOTE check no f['size'] info
-    if (not 'size' in f) or (f['size'] <= 0):
+    # NOTE check no f['size_byte'] info
+    if (not 'size_byte' in f) or (f['size_byte'] <= 0):
         log.d(lan.dl_d_file_size(b.byte_to_size(local_size)), add_check_log_prefix=True)
         # NOTE set skip check
         conf.skip_check_list['check_file_size'] = True
         log.w(lan.dl_err_check_file_size_no_info(), add_check_log_prefix=True)
         return
     # check size
-    err_s, err_k, er, err_u = b.check_size(local_size, f['size'], b.CHECK_SIZE_MB)
+    err_s, err_k, er, err_u = b.check_size(local_size, f['size_byte'], b.CHECK_SIZE_MB)
     if er:
         if (abs(err_u) >= conf.CHECK_ERR_K['file_size_mb']) or (abs(err_k) >= conf.CHECK_ERR_K['file_size']):
             ui.dl_worker_print_check_file_size_error(err_s, err_k, f['_part_name'], local_size)

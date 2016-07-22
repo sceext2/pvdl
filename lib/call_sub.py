@@ -1,4 +1,4 @@
-# call_sub.py, parse_video/pvdl/lib/
+# call_sub.py, pvdl/lib/
 
 import os, sys
 import json
@@ -8,9 +8,9 @@ from . import err, b, conf, log
 from . import lan
 
 
-def call_parsev(args, data=None):
+def call_pv(args, data=None):
     py_bin = sys.executable
-    pv_bin = _make_bin_path(conf.SUB_BIN['parsev'])
+    pv_bin = _make_bin_path(conf.SUB_BIN['pv'])
     a = [py_bin, pv_bin] + args
     raw_timeout = conf.set_parse_timeout
     # DEBUG log
@@ -26,23 +26,23 @@ def call_parsev(args, data=None):
         p = subprocess.run(a, stdout=PIPE, timeout=timeout, input=data)
     except subprocess.TimeoutExpired as e:
         log.e(lan.cs_err_pv_timeout(timeout), add_check_log_prefix=True)
-        er = err.ParseError('parse_video timeout', timeout, args)
+        er = err.ParseError('p_video timeout', timeout, args)
         raise er from e
     except Exception as e:
-        log.e(lan.cs_err_can_not_exe('parse_video'), add_check_log_prefix=True)
-        er = err.CallError('parse_video', py_bin, pv_bin, args)
+        log.e(lan.cs_err_can_not_exe('p_video'), add_check_log_prefix=True)
+        er = err.CallError('p_video', py_bin, pv_bin, args)
         raise er from e
     # check exit code
     exit_code = p.returncode
     if exit_code != 0:
         log.e(lan.cs_err_pv_ret(exit_code), add_check_log_prefix=True)
-        raise err.ExitCodeError('parse_video', exit_code, args)
+        raise err.ExitCodeError('p_video', exit_code, args)
     # parse stdout
     try:
         stdout = p.stdout.decode('utf-8')
     except Exception as e:
         log.e(lan.cs_err_pv_decode_stdout(), add_check_log_prefix=True)
-        er = err.DecodingError('parse_video', 'stdout', args)
+        er = err.DecodingError('p_video', 'stdout', args)
         er.blob = p.stdout
         raise er from e
     # parse parse_video output json
@@ -50,7 +50,7 @@ def call_parsev(args, data=None):
         out = json.loads(stdout)
     except Exception as e:
         log.e(lan.cs_err_pv_parse_json(), add_check_log_prefix=True)
-        er = err.ParseJSONError('parse_video', stdout, args)
+        er = err.ParseJSONError('p_video', stdout, args)
         raise er from e
     return out, stdout	# everything OK
 

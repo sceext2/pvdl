@@ -7,8 +7,12 @@ from . import err, b, conf
 # gen video common title
 def gen_common_title(pvinfo):
     info = pvinfo['info']
-    title_no = info.get('title_no', -1)
-    title_sub = info.get('title_sub', '')
+    title_no = -1
+    title_sub = ''
+    if 'title_extra' in info:
+        e = info['title_extra']
+        title_no = e.get('no', -1)
+        title_sub = e.get('sub', '')
     raw = _do_gen_title(info['title'], '', info['site_name'], title_no=title_no, title_sub=title_sub)
     out = b.replace_filename_bad_char(raw)
     return out
@@ -18,8 +22,12 @@ def gen_common_title(pvinfo):
 def gen_title(task_info):
     info = task_info['info']
     # get needed info
-    title_no = info.get('title_no', -1)
-    title_sub = info.get('title_sub', '')
+    title_no = -1
+    title_sub = ''
+    if 'title_extra' in info:
+        e = info['title_extra']
+        title_no = e.get('no', -1)
+        title_sub = e.get('sub', '')
     quality = task_info['video']['quality']
     
     raw = _do_gen_title(info['title'], quality, info['site_name'], title_no=title_no, title_sub=title_sub)
@@ -37,17 +45,21 @@ def _do_gen_title(title, quality, site, title_no=-1, title_sub=''):
 # gen short title for base_path_add_title
 def gen_short_title(task_info):
     info = task_info['info']
+    title_no = -1
+    title_short = ''
+    if 'title_extra' in info:
+        e = info['title_extra']
+        title_no = e.get('no', -1)
+        title_short = e.get('short', '').strip()
     # check title_no
-    title_no = info.get('title_no', -1)
     if title_no < 0:
         return None	# disable this feature
     # check title_short
-    title_short = info.get('title_short', '').strip()
     if title_short == '':
         return None
     # gen raw title
     quality = task_info['video']['quality']
-    raw = ('_').join([info['title_short'], quality, info['site_name']])
+    raw = ('_').join([title_short, quality, info['site_name']])
     # fix for filename
     out = b.replace_filename_bad_char(raw)
     return out
@@ -188,7 +200,9 @@ def fix_title_no(task_info):
     info = task_info['info']
     # get numbers in title text
     num = b.get_num_from_text(info['title'])
-    title_no = info.get('title_no', None)
+    title_no = None
+    if 'title_extra' in info:
+        title_no = info['title_extra'].get('no', None)
     # should get title_no
     if (title_no == None) or (title_no < 0):
         if len(num) < 1:	# no num in title, can not get title_no

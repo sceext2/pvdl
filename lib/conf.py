@@ -45,8 +45,8 @@ merge_output_format = 'mp4'
 FEATURES = {	# --enable, --disable
 ## parse stage
 
-    'print_parse_video_output' : False, 
-    #### print parse_video raw output for DEBUG
+    'print_pv_output' : False, 
+    #### print p_video raw output for DEBUG
 
     'fix_size' : True, 
     #### if parse_video not get part file size, try to fix it here
